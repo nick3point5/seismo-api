@@ -3,7 +3,6 @@ const controllers = require('../controllers');
 
 router.get('/', controllers.user.index);
 router.post('/', controllers.user.create);
-router.delete('/clear', controllers.user.clear);
 router.get('/:id', controllers.user.show);
 router.post('/login', controllers.user.login);
 router.get('/logout', controllers.user.logout);

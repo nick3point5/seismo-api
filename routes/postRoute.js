@@ -4,7 +4,6 @@ const controllers = require('../controllers');
 router.get('/', controllers.post.index);
 router.get('/get10', controllers.post.get10);
 router.post('/', controllers.post.create);
-router.delete('/clear', controllers.post.clear);
 router.get('/getposts/:id', controllers.post.getPosts)
 router.get('/:id', controllers.post.show);
 router.put('/:id', controllers.post.update);
