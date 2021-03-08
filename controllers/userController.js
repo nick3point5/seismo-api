@@ -1,152 +1,102 @@
-const express = require("express");
-const mongoose = require("mongoose");
-const bcrypt = require("bcrypt");
-require("dotenv").config();
 const db = require('../models')
 
-const show = (req,res) => {
-	if (!req.session.currentUser) {
-		return res.json({message:'Not logged in'});
-	}
+const index = (req,res) => {
+  db.Profile.find(
+    {},
+    (err, obj) => {
+      if (err) {
+        console.log('Error:');
+        console.log(err);}
+      res.json(obj)
+  })
+}
 
-	// db.User.findById(req.params.id)
-	db.User.findById(req.session.currentUser._id)
-		.exec((err, foundObj) => {
-			if (err) return res.send(err);
-			res.json(foundObj);
-		});
+const show = (req,res) => {
+		db.Profile.findOne(
+			{
+				uid: req.params.id
+			},
+			(err, obj) => {
+				if (err) {
+					console.log('Error:');
+					console.log(err);}
+				res.json(obj)
+		})
 };
 
 const create = (req,res) => {
 	if(!req.body.username){
 		return res.json({message:'Must enter Username'});
 	}
-	if(!req.body.password){
-		return res.json({message:'Must enter Password'});
-	}
-	const user = {
-		username: req.body.username,
-		password: req.body.password,
-	};
-
-	db.User.findOne(user, (err, foundUser) => {
+	const newUser =  req.body;
+	db.Profile.create(newUser, (err) => {
 		if (err) return res.send(err);
 
-		if (!foundUser) {
-			if (req.body.password === req.body.confirm) {
-				bcrypt.genSalt(15, (err, salt) => {
-					if (err) return res.send(err);
-					bcrypt.hash(req.body.password, salt, (err, hashedObj) => {
-						const newUser = {
-							username: req.body.username,
-							password: hashedObj,
-						};
-						db.User.create(newUser, (err) => {
-							if (err) return res.send(err);
-
-							res.json(newUser);
-						});
-					});
-				});
-			} else {
-				res.json({message:'Passwords don\'t match. Try again.'});
-			}
-		} else {
-			res.json({message:'Username Already Taken. Try again'});
-		}
+		res.json(newUser);
 	});
 }
 
 const update = (req,res) => {
-	const dataObj = {
-		newUsername: req.body.newUsername,
-		currPassword: req.body.currPassword,
-		newPassword: req.body.newPassword,
-		confirm: req.body.confirm,
-	};
-	if (!req.body.newUsername) {
-		return res.json(
-			{message:'Username required'}
-		)
-	}
+	const updateObj =	req.body
+	db.Profile.findOneAndUpdate(
+		{
+			uid: req.params.id
+		},
+		updateObj,
+		{new: true},
+		(err, obj) => {
+			if (err) {
+				console.log('Error:');
+				console.log(err);}
+			res.json(obj)
+		})
 
-	if (dataObj.newPassword === dataObj.confirm) {
-		db.User.findById(req.session.currentUser._id, (err, foundUser) => {
-			if (err) return res.send(err);
-
-			bcrypt.compare(
-				dataObj.currPassword,
-				foundUser.password,
-				(err, result) => {
-					if (result) {
-						bcrypt.genSalt(15, (err, salt) => {
-							if (err) return res.send(err);
-
-							bcrypt.hash(dataObj.newPassword, salt, (err, hashedPassword) => {
-								db.User.findByIdAndUpdate(
-									req.session.currentUser._id,
-									{ username: dataObj.newUsername, password: hashedPassword },
-									{ new: true },
-									(err, updatedObj) => {
-										if (err) return res.send(err);
-										res.json(updatedObj);
-									}
-								);
-							});
-						});
-					} else {
-						return res.json(
-							{message:'Current password incorrect. Try again.'}
-						);
-					}
-				}
-			);
-		});
-	} else {
-		return res.json(
-			{message:'Passwords don\'t match. Try again.'}
-		);
-	}
 };
 
 const remove = (req,res) => {
-	if (req.session.currentUser._id) {
-		db.User.findById(req.session.currentUser._id, (err, foundObj) => {
-			if (err) {
-				console.log("Error:");
-				console.log(err);
-			}
-			console.log(foundObj);
-			db.User.findByIdAndDelete(foundObj._id, (err, deletedObj) => {
-				if (err) return res.send(err);
-				res.json({message:'Deleted User'})
-			});
-		});
-	}else{
-		res.json({message:'Not logged in'})
-	}
+
+	db.Profile.findByIdAndDelete(
+		req.params._id, 
+		(err, deletedObj) => {
+			if (err) return res.send(err);
+			// res.json({message:'Deleted User'})
+			res.json(deletedObj)
+	});
+
 };
 
+const clear = (req,res) => {
+  db.Profile.deleteMany(
+    {},
+    (err, obj) => {
+      if (err) {
+        console.log('Error:');
+        console.log(err);
+      }
+      res.json(obj)
+    })
+}
+
 const login = (req,res) => {
-	const user = { username: req.body.username };
-	db.User.findOne(user, (err, foundObj) => {
+	const user = { uid: req.body.uid };
+	db.Profile.findOne(user, (err, foundObj) => {
 		if (err) {
 			return res.send(err);
 		}
 		if (!foundObj) {
-			return res.json({message:'User info not found.'});
+			db.Profile.create(
+				req.body,
+				(err, obj) => {
+					if (err) {
+						console.log('Error:');
+						console.log(err);}
+					console.log('asd');
+					res.json({message:'User created'})
+			})
+		}else{
+			res.json({message:'User found.'})
 		}
 
-		bcrypt.compare(req.body.password, foundObj.password, (err, result) => {
-			if (err) return res.send(err);
-
-			if (result) {
-				req.session.currentUser = foundObj;
-				res.json(result);
-			} else {
-				res.json({message:'User info not found.'});
-			}
-		});
 	});
 };
 
@@ -157,11 +107,93 @@ const logout = (req,res) => {
 	});
 };
 
+const getPosts = (req,res) =>{
+    db.Post.find(
+      {
+				ownerId: req.params.id
+      },
+      (err, obj) => {
+        if (err) {
+          console.log('Error:');
+          console.log(err);}
+        res.json(obj)
+      }
+		)
+			.sort( { createdAt: -1 } )
+}
+
+const feedTime = async (req,res) =>{
+	db.Profile.findOne(
+		{
+			uid: req.params.id
+		},
+		(err, obj) => {
+			if (err) {
+				console.log('Error:');
+				console.log(err);}
+		}
+	)
+		.then((obj)=>{
+				db.Post.find(
+					{
+						ownerId: obj.following
+					},
+					(err, obj) => {
+						if (err) {
+							console.log('Error:');
+							console.log(err);}
+						res.json(obj)
+					}
+				)
+					.sort( { createdAt: -1 } )
+					.limit(10)
+		}
+	)
+}
+
+const feedMag = async (req,res) =>{
+	db.Profile.findOne(
+		{
+			uid: req.params.id
+		},
+		(err, obj) => {
+			if (err) {
+				console.log('Error:');
+				console.log(err);}
+		}
+	)
+		.then((obj)=>{
+
+			console.log(obj.following)
+				db.Post.find(
+					{
+						ownerId: obj.following
+					},
+					(err, obj) => {
+						if (err) {
+							console.log('Error:');
+							console.log(err);}
+						res.json(obj)
+					}
+				)
+					.sort( { magnitude: -1 } )
+					.limit(10)
+		}
+	)
+}
+
+
+
 module.exports = {
+	index,
   create,
   show,
   update,
   remove,
   login,
-  logout
+  logout,
+	getPosts,
+	clear,
+	feedTime,
+	feedMag
 }

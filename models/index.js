@@ -13,5 +13,5 @@ mongoose.connect(connectionString, options)
 
 module.exports = {
   Post: require('./Post'),
-  User: require("./User"),
+  Profile: require("./Profile"),
 }
