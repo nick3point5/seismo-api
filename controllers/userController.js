@@ -59,7 +59,6 @@ const remove = (req,res) => {
 		req.params._id, 
 		(err, deletedObj) => {
 			if (err) return res.send(err);
-			// res.json({message:'Deleted User'})
 			res.json(deletedObj)
 	});
 
@@ -90,7 +89,6 @@ const login = (req,res) => {
 					if (err) {
 						console.log('Error:');
 						console.log(err);}
-					console.log('asd');
 					res.json({message:'User created'})
 			})
 		}else{
@@ -151,7 +149,7 @@ const feedTime = async (req,res) =>{
 	)
 }
 
-const feedMag = async (req,res) =>{
+const feedMag = (req,res) =>{
 	db.Profile.findOne(
 		{
 			uid: req.params.id
@@ -163,8 +161,6 @@ const feedMag = async (req,res) =>{
 		}
 	)
 		.then((obj)=>{
-
-			console.log(obj.following)
 				db.Post.find(
 					{
 						ownerId: obj.following

@@ -10,7 +10,7 @@ router.put('/:id', controllers.user.update);
 router.delete('/:id', controllers.user.remove);
 router.get('/getposts/:id',controllers.user.getPosts)
 router.get('/feedTime/:id',controllers.user.feedTime)
-router.get('/feedMag/:id',controllers.user.feedTime)
+router.get('/feedMag/:id',controllers.user.feedMag)
 
 router.post('/follow/:id', controllers.following.follow);
 router.post('/unfollow/:id', controllers.following.unFollow);
