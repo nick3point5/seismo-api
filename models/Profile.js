@@ -5,28 +5,33 @@ const ProfileSchema = new Schema(
 	{
 		username: {
 			type: String,
-			required:true,
+			required: true,
 		},
 		uid: {
 			type: String,
-			unique: true
+			unique: true,
 		},
 		img: {
 			type: String,
-			default: null
+			default: null,
 		},
 		about: {
 			type: String,
-			default: 'About Me'
+			default: "About Me",
+			maxLength: 500,
 		},
-		followers:[{
-			type: String,
-			ref: 'users'
-		}],
-		following:[{
-			type: String,
-			ref: 'users'
-		}],
+		followers: [
+			{
+				type: String,
+				ref: "users",
+			},
+		],
+		following: [
+			{
+				type: String,
+				ref: "users",
+			},
+		],
 	},
 	{ timestamps: true }
 );
