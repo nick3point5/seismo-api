@@ -23,7 +23,6 @@ const postSchema = new mongoose.Schema(
 		],
 		ownerId: {
 			type: String,
-			// type: mongoose.Schema.Types.ObjectId,
 			ref: "User",
 		},
 		magnitude: {

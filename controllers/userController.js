@@ -56,10 +56,64 @@ const update = (req, res) => {
 };
 
 const remove = (req, res) => {
-	db.Profile.findByIdAndDelete(req.params._id, (err, deletedObj) => {
-		if (err) return res.send(err);
-		res.json(deletedObj);
+
+
+	function unFollow(id,obj){
+		let target = null;
+		const updateFollowing=obj.following.filter((id) => id !== req.params.id);
+		
+			const updateObj = { 
+				following: updateFollowing
+			}
+			console.log(updateFollowing)
+			
+		
+			db.Profile.findByIdAndUpdate(
+				id,
+				updateObj,
+				{new: true},
+				(err, obj) => {
+					if (err) {
+						console.log('Error:');
+						console.log(err);
+					}
+				}
+			)
+	};
+
+	db.Profile.find(
+		{
+			following: req.params.id
+		},
+		(err, objArr) => {
+			if (err) {
+				console.log('Error:');
+				console.log(err);}
+			objArr.forEach(obj=>{
+				unFollow(obj._id,obj)
+				}
+			)
+	})
+
+	db.Post.deleteMany({ownerId: req.params.id}, (err, obj) => {
+		if (err) {
+			console.log("Error:");
+			console.log(err);
+		}
+		res.json(obj);
 	});
+	db.Profile.findOneAndDelete({uid: req.params.id}, (err, deletedObj) => {
+		if (err) return res.send(err);
+	});
+
+
+
+
+
+
+
+
+
 };
 
 const clear = (req, res) => {

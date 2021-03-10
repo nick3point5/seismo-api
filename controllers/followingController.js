@@ -22,8 +22,6 @@ const follow = (req, res) => {
 						console.log("Error:");
 						console.log(err);
 					}
-
-					// res.json(obj)
 				}
 			).then((followObj) => {
 				db.Profile.findOne({ uid: req.body.id }, (err, followerObj) => {
@@ -99,8 +97,6 @@ const unFollow = (req, res) => {
 						console.log("Error:");
 						console.log(err);
 					}
-
-					// res.json(obj)
 				}
 			).then((unFollowObj) => {
 				db.Profile.findOne({ uid: req.body.id }, (err, followerObj) => {
