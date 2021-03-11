@@ -1,24 +1,37 @@
-const express = require("express");
-const bodyParser = require("body-parser");
-const cors = require("cors");
 require("dotenv").config();
-const routes = require("./routes");
+const WebSocket = require('ws');
+const server = require('http').createServer();
+const app = require('./app');
+const db = require("./models");
 
 const PORT = process.env.PORT || 4000;
 
-const app = express();
 
-app.use(bodyParser.json());
-app.use(express.json());
-app.use(cors());
-
-app.get("/", (req, res) => {
-	res.send("success");
+const WSServer = WebSocket.Server;
+const wss = new WSServer({
+  server: server
 });
 
-app.use("/post", routes.post);
-app.use("/user", routes.user);
+server.on('request', app);
 
-app.listen(PORT, () => {
-	console.log(`Server running in port ${PORT}`);
+wss.on('connection', function connection(ws) {
+  ws.on('message', function incoming(data) {
+    wss.clients.forEach(function each(client) {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(data);
+      }
+    });
+  });
+
+	ws.on('close', function (data) {
+    wss.clients.forEach(function each(client) {
+      if (client.readyState === WebSocket.OPEN) {
+      }
+    });
+  });
+
+});
+
+server.listen(PORT, function() {
+  console.log(`Server running in port ${PORT}`);
 });
