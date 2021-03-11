@@ -65,7 +65,6 @@ const remove = (req, res) => {
 			const updateObj = { 
 				following: updateFollowing
 			}
-			console.log(updateFollowing)
 			
 		
 			db.Profile.findByIdAndUpdate(

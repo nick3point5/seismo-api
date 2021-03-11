@@ -2,10 +2,8 @@ require("dotenv").config();
 const WebSocket = require('ws');
 const server = require('http').createServer();
 const app = require('./app');
-const db = require("./models");
 
 const PORT = process.env.PORT || 4000;
-
 
 const WSServer = WebSocket.Server;
 const wss = new WSServer({
@@ -22,14 +20,6 @@ wss.on('connection', function connection(ws) {
       }
     });
   });
-
-	ws.on('close', function (data) {
-    wss.clients.forEach(function each(client) {
-      if (client.readyState === WebSocket.OPEN) {
-      }
-    });
-  });
-
 });
 
 server.listen(PORT, function() {
