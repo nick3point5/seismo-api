@@ -1,6 +1,11 @@
 const db = require("../models");
 
+updateDB()
 setInterval(() => {
+	updateDB()
+}, 1000 * 60 * 20);
+
+function updateDB(){
 	db.Post.find(
 		{
 			magnitude: { $lte: 0 },
@@ -43,7 +48,7 @@ setInterval(() => {
 			});
 		});
 	});
-}, 1000 * 60 * 20);
+}
 
 function magnitude(power, created) {
 	const growth = 6.287728772;
